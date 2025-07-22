@@ -80,11 +80,11 @@ class DetectionSubModularExplanation(object):
         all_bounding_boxes = []
         all_logits = []
 
-        # 将输入图像拆分为 batch_size 批次
-        num_batches = (len(images) + batch_size - 1) // batch_size  # 计算需要的批次数
+        # Split the input image into batches of size batch_size
+        num_batches = (len(images) + batch_size - 1) // batch_size  # Calculate the number of batches needed.
 
         for i in range(num_batches):
-            # 获取当前批次的图像
+            # Get the images of the current batch
             print(f"\n Processing batch {i+1}/{num_batches}")
             batch_images = images[i * batch_size:(i + 1) * batch_size]
             batch_tensor = torch.stack(batch_images).to(self.device)
@@ -98,7 +98,7 @@ class DetectionSubModularExplanation(object):
             print(f"Batch {i+1} pred_boxes type: {type(bounding_boxes)}")
             print(f"Batch {i+1} pred_logits type: {type(logits)}")
 
-            # # 将当前批次传递到检测模型
+            # # Pass the current batch to the detection model.
             # bounding_boxes, logits = detection_model(batch_images, h, w)
 
             if not isinstance(bounding_boxes, torch.Tensor):
@@ -107,7 +107,7 @@ class DetectionSubModularExplanation(object):
                 print(f"Unexpected type in logits: {type(logits)} - {logits}")
 
 
-            # 将结果收集到列表中
+            # Collect the results into a list.
             all_bounding_boxes.append(bounding_boxes.detach().cpu())
             all_logits.append(logits.detach().cpu())
         
@@ -122,7 +122,7 @@ class DetectionSubModularExplanation(object):
                 raise TypeError("Detected non-tensor in all_logits")
 
 
-        # 将所有批次的结果拼接成一个完整的张量
+        # Concatenate the results from all batches into a complete tensor.
         all_bounding_boxes = torch.cat(all_bounding_boxes, dim=0)
         all_logits = torch.cat(all_logits, dim=0)
 
@@ -145,7 +145,7 @@ class DetectionSubModularExplanation(object):
         inter_x2 = torch.minimum(x2, tx2)
         inter_y2 = torch.minimum(y2, ty2)
 
-        # 计算相交区域的面积
+        # Calculate the area of the overlapping region
         inter_area = torch.clamp((inter_x2 - inter_x1), min=0) * torch.clamp((inter_y2 - inter_y1), min=0)
 
         # Calculate the area of ​​the intersection
@@ -219,7 +219,7 @@ class DetectionSubModularExplanation(object):
             print(f" cls_score max: {cls_score.max().item()}, min: {cls_score.min().item()}")
 
 
-            # 🔍 Debugging prints
+            # Debugging prints
             print(" ious_clip max:", ious_clip.max().item())
             print(" cls_score max:", cls_score.max().item())
             print(" insertion_scores preview (before compute):", (ious_clip * cls_score_exp)[:5].max(dim=-1)[0].tolist())
