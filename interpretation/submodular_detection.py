@@ -11,6 +11,8 @@ import supervision as sv
 import os
 import matplotlib.pyplot as plt
 
+from torchvision.ops.boxes import box_convert
+
 class DetectionSubModularExplanation(object):
     """
     Instance-level interpretability of object detection 
@@ -91,6 +93,7 @@ class DetectionSubModularExplanation(object):
 
             outputs = detection_model(batch_tensor, h, w)
             bounding_boxes = outputs["pred_boxes"]
+            bounding_boxes = box_convert(bounding_boxes, in_fmt="cxcywh", out_fmt="xyxy")
             print(bounding_boxes)
             logits = outputs["pred_logits"]
 
@@ -187,6 +190,7 @@ class DetectionSubModularExplanation(object):
         with torch.no_grad():
             # Insertion
             bounding_boxes, logits = self.process_in_batches(batch_input_images, self.batch_size, self.detection_model, self.h, self.w) # [batch, np, 4] [batch, np, 256]
+            print("Single box [batch 0, box 0]:", bounding_boxes[0, 0]) 
             print(logits)
             print(logits.shape)
             
